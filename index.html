@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHANTOM NODE Trading Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        /* Firefox ScrollBar Styling */
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }  
+        .container { margin: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PHANTOM NODE Crypto Trading Dashboard</h1>
+        <div id="data-display"></div>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        let websocket;
+        const statusDiv = document.getElementById('status');
+        const displayDiv = document.getElementById('data-display');
+
+        function init() {
+            if (websocket) {
+                websocket.close();
+            }
+
+            // Establish WebSocket connection
+            connectWebSocket();
+        }
+
+        function connectWebSocket() {
+            websocket = new WebSocket('wss://example.com/crypto');
+
+            websocket.onopen = function() {
+                statusDiv.innerText = 'Connected to WebSocket.';
+                displayMarketData();
+            };
+
+            websocket.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                updateDashboard(data);
+            };
+
+            websocket.onclose = function() {
+                statusDiv.innerText = 'WebSocket disconnected. Retrying...';
+                setTimeout(init, exponentialBackoff());
+            };
+
+            websocket.onerror = function() {
+                console.error('WebSocket error observed.');
+                statusDiv.innerText = 'Error occurred.
+            };
+        }
+
+        function exponentialBackoff(attempt) {
+            const factor = 2; // Backoff factor
+            const baseDelay = 1000; // Base delay in ms
+            return Math.min(baseDelay * Math.pow(factor, attempt), 30000); // Max 30 seconds
+        }
+
+        function updateDashboard(data) {
+            displayDiv.innerHTML = ''; // Clear current data
+
+            // Update with new data (implement scoring and calculations)
+            const scores = weightData(data);
+            displayDiv.innerHTML = `Scores: ${scores}`;
+        }
+
+        function weightData(data) {
+            // Implement logic for weighted confluence scoring
+            return data.map(item => item.value * 0.5); // Example scaling
+        }
+
+        // Call initialization
+        init();
+    </script>
+</body>
+</html>
